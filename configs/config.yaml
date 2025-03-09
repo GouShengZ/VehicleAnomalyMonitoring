@@ -1,0 +1,32 @@
+# 应用基础配置
+base:
+  port: 8080
+  log_level: info
+
+# Kafka配置
+kafka:
+  brokers:
+    - localhost:9092
+  can_topic: can_data
+  topics:
+    - can_data
+    - vehicle_status
+  group_id: monitor-group
+
+# DBC解析配置
+dbc:
+  enabled: true
+  file_path: "configs/vehicle.dbc"
+
+# 监控配置
+monitor:
+  interval: 5s
+  alert_threshold: 80
+
+# 数据库配置
+database:
+  host: localhost
+  port: 5432
+  user: monitor
+  password: monitor_pass
+  name: vehicle_data

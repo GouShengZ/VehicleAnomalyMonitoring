@@ -1,0 +1,76 @@
+VERSION ""
+
+NS_ :
+    NS_DESC_
+    CM_
+    BA_DEF_
+    BA_
+    VAL_
+    CAT_DEF_
+    CAT_
+    FILTER
+    BA_DEF_DEF_
+    EV_DATA_
+    ENVVAR_DATA_
+    SGTYPE_
+    SGTYPE_VAL_
+    BA_DEF_SGTYPE_
+    BA_SGTYPE_
+    SIG_TYPE_REF_
+    VAL_TABLE_
+    SIG_GROUP_
+    SIG_VALTYPE_
+    SIGTYPE_VALTYPE_
+    BO_TX_BU_
+    BA_DEF_REL_
+    BA_REL_
+    BA_DEF_DEF_REL_
+    BU_SG_REL_
+    BU_EV_REL_
+    BU_BO_REL_
+    SG_MUL_VAL_
+
+BS_:
+
+BU_: ECU1 ECU2 ECU3
+
+
+BO_ 100 VehicleSpeed: 8 ECU1
+ SG_ speed : 0|16@1+ (0.01,0) [0|300] "km/h" ECU1
+
+BO_ 200 EngineData: 8 ECU2
+ SG_ engine_temp : 0|16@1+ (0.1,-40) [-40|150] "°C" ECU2
+ SG_ engine_rpm : 16|16@1+ (1,0) [0|8000] "rpm" ECU2
+
+BO_ 300 BatteryInfo: 8 ECU3
+ SG_ battery_voltage : 0|16@1+ (0.01,0) [0|20] "V" ECU3
+ SG_ battery_current : 16|16@1+ (0.1,-1000) [-1000|1000] "A" ECU3
+
+BO_ 400 FuelInfo: 8 ECU2
+ SG_ fuel_level : 0|8@1+ (0.5,0) [0|100] "%" ECU2
+ SG_ fuel_consumption : 8|16@1+ (0.01,0) [0|50] "L/100km" ECU2
+
+BO_ 500 VehicleStatus: 8 ECU1
+ SG_ door_status : 0|4@1+ (1,0) [0|15] "" ECU1
+ SG_ light_status : 4|4@1+ (1,0) [0|15] "" ECU1
+ SG_ wiper_status : 8|2@1+ (1,0) [0|3] "" ECU1
+
+CM_ BO_ 100 "车速信息"; 
+CM_ SG_ 100 speed "车辆当前速度"; 
+CM_ BO_ 200 "发动机数据"; 
+CM_ SG_ 200 engine_temp "发动机温度"; 
+CM_ SG_ 200 engine_rpm "发动机转速"; 
+CM_ BO_ 300 "电池信息"; 
+CM_ SG_ 300 battery_voltage "电池电压"; 
+CM_ SG_ 300 battery_current "电池电流"; 
+CM_ BO_ 400 "燃油信息"; 
+CM_ SG_ 400 fuel_level "燃油量百分比"; 
+CM_ SG_ 400 fuel_consumption "百公里油耗"; 
+CM_ BO_ 500 "车辆状态"; 
+CM_ SG_ 500 door_status "车门状态，按位表示各车门"; 
+CM_ SG_ 500 light_status "车灯状态，按位表示各车灯"; 
+CM_ SG_ 500 wiper_status "雨刷状态，0-关闭，1-低速，2-高速，3-自动"; 
+
+VAL_ 500 door_status 0 "All Closed" 1 "Driver Open" 2 "Passenger Open" 4 "Rear Left Open" 8 "Rear Right Open" ;
+VAL_ 500 light_status 0 "All Off" 1 "Position On" 2 "Low Beam On" 4 "High Beam On" 8 "Fog Light On" ;
+VAL_ 500 wiper_status 0 "Off" 1 "Low" 2 "High" 3 "Auto" ;
