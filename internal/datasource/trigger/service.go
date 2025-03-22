@@ -49,7 +49,7 @@ func (s *Service) FetchAndProcessNegativeTrigger(startTime, endTime int64, trigg
 
 	// 将数据推送到Redis队列
 	for _, data := range triggerDataList {
-		err := data.PushToRedisQueue("")
+		err := data.PushToRedisQueue(configs.InitQueueName)
 		if err != nil {
 			common.Logger.Error("推送负面触发器数据到Redis失败", zap.Error(err))
 		}

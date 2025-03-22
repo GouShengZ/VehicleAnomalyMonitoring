@@ -25,7 +25,7 @@ func (c *CarUserFilter) Run() {
 			// logger.Error("消费消息失败", err)
 			return
 		}
-		carTpyeinfo, err := apiClient.GetVehicleTypeInfo("", carData.VIN)
+		carTpyeinfo, err := apiClient.GetVehicleTypeInfo("", carData.Vin)
 		if err != nil {
 			// logger.Error("获取车辆类型信息失败", err)
 			return

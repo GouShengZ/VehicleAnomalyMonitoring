@@ -98,7 +98,7 @@ func (c *APIClient) FetchNegativeTriggerData(endpoint string, startTime, endTime
 	triggerDataList := make([]*models.NegativeTriggerData, 0, len(apiResponses))
 	for _, resp := range apiResponses {
 		triggerData := &models.NegativeTriggerData{
-			VIN:       resp.VIN,
+			Vin:       resp.VIN,
 			Timestamp: resp.Timestamp,
 			TriggerID: uuid.New().String(),
 			Type:      "negative",

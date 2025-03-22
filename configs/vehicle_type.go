@@ -35,18 +35,18 @@ func DefaultVehicleTypeConfig() *VehicleTypeConfig {
 
 		// 车辆类型和使用类型组合的映射规则
 		VehicleTypeMap: map[string]string{
-			"A_量产车": "type_a_production_queue",
-			"A_试驾车": "type_a_test_drive_queue",
-			"A_媒体车": "type_a_media_queue",
-			"A_内部车": "type_a_internal_queue",
-			"B_量产车": "type_b_production_queue",
-			"B_试驾车": "type_b_test_drive_queue",
-			"B_媒体车": "type_b_media_queue",
-			"B_内部车": "type_b_internal_queue",
-			"C_量产车": "type_c_production_queue",
-			"C_试驾车": "type_c_test_drive_queue",
-			"C_媒体车": "type_c_media_queue",
-			"C_内部车": "type_c_internal_queue",
+			"A_量产车": "type_a_production_triggers",
+			"A_试驾车": "type_a_test_drive_triggers",
+			"A_媒体车": "type_a_media_triggers",
+			"A_内部车": "type_a_internal_triggers",
+			"B_量产车": "type_b_production_triggers",
+			"B_试驾车": "type_b_test_drive_triggers",
+			"B_媒体车": "type_b_media_triggers",
+			"B_内部车": "type_b_internal_triggers",
+			"C_量产车": "type_c_production_triggers",
+			"C_试驾车": "type_c_test_drive_triggers",
+			"C_媒体车": "type_c_media_triggers",
+			"C_内部车": "type_c_internal_triggers",
 		},
 	}
 }

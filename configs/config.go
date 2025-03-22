@@ -14,6 +14,7 @@ type AppConfig struct {
 	Redis   *RedisConfig   `yaml:"redis"`
 	Trigger *TriggerConfig `yaml:"trigger"`
 	Logger  *LoggerConfig  `yaml:"logger"`
+	MySQL   *MySQLConfig   `yaml:"mysql"`
 }
 
 // 全局配置实例
@@ -37,6 +38,7 @@ func LoadConfig(configPath string) (*AppConfig, error) {
 				Redis:   DefaultRedisConfig(),
 				Trigger: DefaultTriggerConfig(),
 				Logger:  DefaultLoggerConfig(),
+				MySQL:   DefaultMySQLConfig(),
 			}
 			return
 		}
@@ -50,6 +52,7 @@ func LoadConfig(configPath string) (*AppConfig, error) {
 				Redis:   DefaultRedisConfig(),
 				Trigger: DefaultTriggerConfig(),
 				Logger:  DefaultLoggerConfig(),
+				MySQL:   DefaultMySQLConfig(),
 			}
 		}
 	})
@@ -69,6 +72,7 @@ func GetConfig() *AppConfig {
 					Redis:   DefaultRedisConfig(),
 					Trigger: DefaultTriggerConfig(),
 					Logger:  DefaultLoggerConfig(),
+					MySQL:   DefaultMySQLConfig(),
 				}
 			})
 		}

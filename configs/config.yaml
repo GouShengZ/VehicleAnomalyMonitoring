@@ -26,3 +26,12 @@ logger:
   max_age: 7                 # 日志文件保留的最大天数
   compress: true             # 是否压缩旧日志文件
   console: true              # 是否同时输出到控制台
+
+# MySQL配置
+mysql:
+  host: "localhost"          # MySQL主机地址
+  port: 3306                 # MySQL端口
+  username: "root"           # MySQL用户名
+  password: ""               # MySQL密码
+  database: "autodatahub"    # MySQL数据库名
+  charset: "utf8mb4"         # 字符集

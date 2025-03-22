@@ -10,6 +10,7 @@ import (
 )
 
 func PushCarDataToRedis(data *models.NegativeTriggerData) (err error) {
+	db := configs.GetMySQLDB()
 	// 根据车辆类型和使用类型构建键值
 	key := fmt.Sprintf("%s_%s", data.CarType, data.UsageType)
 
@@ -26,5 +27,6 @@ func PushCarDataToRedis(data *models.NegativeTriggerData) (err error) {
 	}
 
 	// 将数据推送到对应的Redis队列
+	models.UpdateProcessLog(db, map[string]interface{}{"id": data.LogId, "process_status": queueName + "_start"})
 	return data.PushToRedisQueue(queueName)
 }
