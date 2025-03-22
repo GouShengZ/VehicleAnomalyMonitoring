@@ -7,6 +7,9 @@ import (
 	"io"
 	"net/http"
 	"time"
+
+	"github.com/zhangyuchen/AutoDataHub-monitor/pkg/common"
+	"go.uber.org/zap"
 )
 
 // VehicleTypeAPIClient 负责从外部API获取车辆类型和使用类型信息
@@ -39,23 +42,27 @@ func (c *VehicleTypeAPIClient) GetVehicleTypeInfo(endpoint string, vin string) (
 	// 发送GET请求
 	resp, err := c.httpClient.Get(url)
 	if err != nil {
+		common.Logger.Error("API请求失败", zap.Error(err))
 		return nil, fmt.Errorf("API请求失败: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
+		common.Logger.Error("API返回非成功状态码", zap.Int("statusCode", resp.StatusCode))
 		return nil, fmt.Errorf("API返回非成功状态码: %d", resp.StatusCode)
 	}
 
 	// 读取响应体
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
+		common.Logger.Error("读取响应体失败", zap.Error(err))
 		return nil, fmt.Errorf("读取响应体失败: %w", err)
 	}
 
 	// 解析API响应
 	var vehicleInfo VehicleTypeInfo
 	if err := json.Unmarshal(body, &vehicleInfo); err != nil {
+		common.Logger.Error("解析API响应失败", zap.Error(err))
 		return nil, fmt.Errorf("解析API响应失败: %w", err)
 	}
 

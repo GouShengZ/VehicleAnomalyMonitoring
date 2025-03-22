@@ -13,6 +13,7 @@ import (
 type AppConfig struct {
 	Redis   *RedisConfig   `yaml:"redis"`
 	Trigger *TriggerConfig `yaml:"trigger"`
+	Logger  *LoggerConfig  `yaml:"logger"`
 }
 
 // 全局配置实例
@@ -35,6 +36,7 @@ func LoadConfig(configPath string) (*AppConfig, error) {
 			config = &AppConfig{
 				Redis:   DefaultRedisConfig(),
 				Trigger: DefaultTriggerConfig(),
+				Logger:  DefaultLoggerConfig(),
 			}
 			return
 		}
@@ -47,6 +49,7 @@ func LoadConfig(configPath string) (*AppConfig, error) {
 			config = &AppConfig{
 				Redis:   DefaultRedisConfig(),
 				Trigger: DefaultTriggerConfig(),
+				Logger:  DefaultLoggerConfig(),
 			}
 		}
 	})
@@ -65,6 +68,7 @@ func GetConfig() *AppConfig {
 				config = &AppConfig{
 					Redis:   DefaultRedisConfig(),
 					Trigger: DefaultTriggerConfig(),
+					Logger:  DefaultLoggerConfig(),
 				}
 			})
 		}

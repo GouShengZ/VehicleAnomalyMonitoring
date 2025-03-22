@@ -4,7 +4,9 @@ import (
 	"fmt"
 
 	"github.com/zhangyuchen/AutoDataHub-monitor/configs"
+	"github.com/zhangyuchen/AutoDataHub-monitor/pkg/common"
 	"github.com/zhangyuchen/AutoDataHub-monitor/pkg/models"
+	"go.uber.org/zap"
 )
 
 func PushCarDataToRedis(data *models.NegativeTriggerData) (err error) {
@@ -19,6 +21,7 @@ func PushCarDataToRedis(data *models.NegativeTriggerData) (err error) {
 
 	// 如果找不到匹配的队列，使用默认队列
 	if !exists {
+		common.Logger.Warn("未找到匹配的队列，使用默认队列", zap.String("key", key))
 		queueName = vehicleTypeConfig.DefaultQueue
 	}
 

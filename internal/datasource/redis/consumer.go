@@ -4,12 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/zhangyuchen/AutoDataHub-monitor/configs"
+	"github.com/zhangyuchen/AutoDataHub-monitor/pkg/common"
 	"github.com/zhangyuchen/AutoDataHub-monitor/pkg/models"
+	"go.uber.org/zap"
 )
 
 // TriggerConsumer 负责从Redis队列中消费触发器数据
@@ -64,7 +65,10 @@ func (c *TriggerConsumer) ConsumeMessage() (*models.NegativeTriggerData, error) 
 		return nil, fmt.Errorf("反序列化数据失败: %w", err)
 	}
 
-	log.Printf("成功从队列 %s 消费数据: VIN=%s, 时间戳=%d", c.queueName, triggerData.VIN, triggerData.Timestamp)
+	common.Logger.Info("成功从队列消费数据",
+		zap.String("queue", c.queueName),
+		zap.String("vin", triggerData.VIN),
+		zap.Int64("timestamp", triggerData.Timestamp))
 	return &triggerData, nil
 }
 
@@ -93,7 +97,10 @@ func (c *TriggerConsumer) ConsumeMessageBlocking(timeout time.Duration) (*models
 		return nil, fmt.Errorf("反序列化数据失败: %w", err)
 	}
 
-	log.Printf("成功从队列 %s 阻塞消费数据: VIN=%s, 时间戳=%d", c.queueName, triggerData.VIN, triggerData.Timestamp)
+	common.Logger.Info("成功从队列阻塞消费数据",
+		zap.String("queue", c.queueName),
+		zap.String("vin", triggerData.VIN),
+		zap.Int64("timestamp", triggerData.Timestamp))
 	return &triggerData, nil
 }
 
@@ -125,13 +132,13 @@ func (c *TriggerConsumer) StartConsumer(handler func(*models.NegativeTriggerData
 		for {
 			select {
 			case <-c.ctx.Done():
-				log.Println("消费者已停止")
+				configs.GetLogger().Info("消费者已停止")
 				return
 			default:
 				// 尝试消费消息
 				data, err := c.ConsumeMessageBlocking(pollInterval)
 				if err != nil {
-					log.Printf("消费消息时发生错误: %v", err)
+					common.Logger.Error("消费消息时发生错误", zap.Error(err))
 					// 出错时短暂暂停，避免CPU占用过高
 					time.Sleep(time.Second)
 					continue
@@ -144,7 +151,7 @@ func (c *TriggerConsumer) StartConsumer(handler func(*models.NegativeTriggerData
 
 				// 处理消息
 				if err := handler(data); err != nil {
-					log.Printf("处理消息失败: %v", err)
+					common.Logger.Error("处理消息失败", zap.Error(err))
 				}
 			}
 		}

@@ -39,6 +39,54 @@ AutoDataHub-Monitor是一个专门为车辆数据监控设计的高性能实时�
    - Redis队列：存储处理后的数据
    - 日志存储：记录系统运行和数据处理日志
 
+## 项目结构
+
+```
+.
+├── cmd/                    # 主程序入口
+│   └── monitor/           # 监控程序主入口
+├── configs/               # 配置文件目录
+│   ├── config.go         # 配置加载和管理
+│   ├── config.yaml       # 主配置文件
+│   ├── redis.go          # Redis配置
+│   ├── trigger.go        # 触发器配置
+│   └── vehicle_type.go   # 车辆类型配置
+├── internal/              # 内部包
+│   ├── datasource/       # 数据源实现
+│   │   ├── kafkaJavaFlink/  # Kafka数据源
+│   │   ├── redis/        # Redis数据源
+│   │   ├── trigger/      # 触发器数据源
+│   │   └── vehicle/      # 车辆数据处理
+│   ├── logger/           # 日志处理
+│   │   ├── datalog/      # 数据日志
+│   │   └── processlog/   # 处理日志
+│   ├── pipeline/         # 处理流水线
+│   │   ├── run/          # 流水线运行
+│   │   └── type_filter/  # 类型过滤器
+│   ├── plugin/           # 插件系统
+│   │   └── registry/     # 插件注册
+│   └── processor/        # 数据处理器
+│       ├── alert/        # 告警处理
+│       ├── filter/       # 数据过滤
+│       └── transform/    # 数据转换
+└── pkg/                   # 公共包
+    ├── common/           # 通用工具
+    ├── models/           # 数据模型
+    └── utils/            # 工具函数
+```
+
+### 目录说明
+
+- **cmd/**: 包含项目的主要入口点，monitor子目录是监控程序的启动入口
+- **configs/**: 存放所有配置相关的代码和配置文件
+- **internal/**: 项目内部包，包含核心业务逻辑实现
+  - datasource/: 实现各种数据源的连接和数据获取
+  - logger/: 处理系统日志和数据日志
+  - pipeline/: 实现数据处理流水线
+  - plugin/: 插件系统实现
+  - processor/: 数据处理器实现
+- **pkg/**: 可以被外部项目使用的公共包
+
 ## 配置指南
 
 系统配置文件位于`configs/`目录下，支持YAML格式：

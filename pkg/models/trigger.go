@@ -4,9 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 
 	"github.com/zhangyuchen/AutoDataHub-monitor/configs"
+	"github.com/zhangyuchen/AutoDataHub-monitor/pkg/common"
+	"go.uber.org/zap"
 )
 
 // NegativeTriggerData 表示负面触发器数据
@@ -30,16 +31,21 @@ func (d *NegativeTriggerData) PushToRedisQueue(queueName string) error {
 	// 将数据序列化为JSON
 	jsonData, err := json.Marshal(d)
 	if err != nil {
+		common.Logger.Error("序列化数据失败", zap.Error(err))
 		return fmt.Errorf("序列化数据失败: %w", err)
 	}
 
 	// 推送到Redis列表
 	result := redisClient.RPush(ctx, queueName, jsonData)
 	if result.Err() != nil {
+		common.Logger.Error("推送数据到Redis队列失败", zap.Error(result.Err()))
 		return fmt.Errorf("推送数据到Redis队列失败: %w", result.Err())
 	}
 
-	log.Printf("成功推送数据到队列 %s: VIN=%s, 时间戳=%d", queueName, d.VIN, d.Timestamp)
+	common.Logger.Info("成功推送数据到队列",
+		zap.String("queue", queueName),
+		zap.String("vin", d.VIN),
+		zap.Int64("timestamp", d.Timestamp))
 	return nil
 }
 

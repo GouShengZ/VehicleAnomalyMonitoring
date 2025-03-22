@@ -2,11 +2,12 @@ package trigger
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/zhangyuchen/AutoDataHub-monitor/configs"
-	// "github.com/zhangyuchen/AutoDataHub-monitor/pkg/common"
+	"github.com/zhangyuchen/AutoDataHub-monitor/pkg/common"
+
+	"go.uber.org/zap"
 )
 
 // 使用configs包中的TriggerConfig
@@ -36,12 +37,13 @@ func (s *Service) FetchAndProcessNegativeTrigger(startTime, endTime int64, trigg
 	// 从API获取数据
 	triggerDataList, err := s.apiClient.FetchNegativeTriggerData(s.config.APIEndpoint, startTime, endTime, triggerIDs)
 	if err != nil {
+		common.Logger.Error("获取负面触发器数据失败", zap.Error(err))
 		return fmt.Errorf("获取负面触发器数据失败: %w", err)
 	}
 
 	// 检查是否有数据返回
 	if len(triggerDataList) == 0 {
-		log.Println("没有找到符合条件的负面触发器数据")
+		common.Logger.Info("没有找到符合条件的负面触发器数据")
 		return nil
 	}
 
@@ -49,10 +51,10 @@ func (s *Service) FetchAndProcessNegativeTrigger(startTime, endTime int64, trigg
 	for _, data := range triggerDataList {
 		err := data.PushToRedisQueue("")
 		if err != nil {
-			fmt.Errorf("推送负面触发器数据到Redis失败: %w", err)
+			common.Logger.Error("推送负面触发器数据到Redis失败", zap.Error(err))
 		}
 	}
 
-	log.Printf("成功处理%d条负面触发器数据", len(triggerDataList))
+	common.Logger.Info("成功处理负面触发器数据", zap.Int("count", len(triggerDataList)))
 	return nil
 }
