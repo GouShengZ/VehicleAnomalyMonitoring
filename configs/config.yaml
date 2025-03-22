@@ -1,32 +1,18 @@
-# 应用基础配置
-base:
-  port: 8080
-  log_level: info
+# AutoDataHub-monitor 配置文件
 
-# Kafka配置
-kafka:
-  brokers:
-    - localhost:9092
-  can_topic: can_data
-  topics:
-    - can_data
-    - vehicle_status
-  group_id: monitor-group
+# Redis配置
+redis:
+  addr: "localhost:6379"      # Redis服务器地址
+  password: ""               # Redis密码
+  db: 0                      # Redis数据库编号
+  queue_name: "negative_triggers"  # Redis队列名称
 
-# DBC解析配置
-dbc:
-  enabled: true
-  file_path: "configs/vehicle.dbc"
-
-# 监控配置
-monitor:
-  interval: 5s
-  alert_threshold: 80
-
-# 数据库配置
-database:
-  host: localhost
-  port: 5432
-  user: monitor
-  password: monitor_pass
-  name: vehicle_data
+# 触发器配置
+trigger:
+  api_base_url: "http://localhost:8080"  # API基础URL
+  api_endpoint: "/api/triggers"          # API端点
+  redis_addr: "localhost:6379"           # Redis服务器地址
+  redis_password: ""                     # Redis密码
+  redis_db: 0                            # Redis数据库编号
+  redis_queue: "negative_triggers"       # Redis队列名称
+  api_timeout: 30                        # 超时时间（秒）
