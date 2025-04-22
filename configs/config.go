@@ -3,104 +3,97 @@ package configs
 import (
 	"fmt"
 	"os"
-	"sync"
 
-	"github.com/go-redis/redis/v8"
 	"gopkg.in/yaml.v3"
 )
 
-// AppConfig 应用程序配置结构
-type AppConfig struct {
-	Redis   *RedisConfig   `yaml:"redis"`
-	Trigger *TriggerConfig `yaml:"trigger"`
-	Logger  *LoggerConfig  `yaml:"logger"`
-	MySQL   *MySQLConfig   `yaml:"mysql"`
+type Config struct {
+	Redis       RedisConfig       `yaml:"redis"`
+	Trigger     TriggerConfig     `yaml:"trigger"`
+	Logger      LoggerConfig      `yaml:"logger"`
+	MySQL       MySQLConfig       `yaml:"mysql"`
+	VehicleType VehicleTypeConfig `yaml:"vehicle_type"`
 }
 
-// 全局配置实例
-var (
-	config     *AppConfig
-	configOnce sync.Once
-
-	// 全局Redis客户端实例
-	redisClient     *redis.Client
-	redisClientOnce sync.Once
-)
-
-// LoadConfig 从指定路径加载配置文件
-func LoadConfig(configPath string) (*AppConfig, error) {
-	configOnce.Do(func() {
-		data, err := os.ReadFile(configPath)
-		if err != nil {
-			fmt.Printf("读取配置文件失败: %v\n", err)
-			// 使用默认配置
-			config = &AppConfig{
-				Redis:   DefaultRedisConfig(),
-				Trigger: DefaultTriggerConfig(),
-				Logger:  DefaultLoggerConfig(),
-				MySQL:   DefaultMySQLConfig(),
-			}
-			return
-		}
-
-		config = &AppConfig{}
-		err = yaml.Unmarshal(data, config)
-		if err != nil {
-			fmt.Printf("解析配置文件失败: %v\n", err)
-			// 使用默认配置
-			config = &AppConfig{
-				Redis:   DefaultRedisConfig(),
-				Trigger: DefaultTriggerConfig(),
-				Logger:  DefaultLoggerConfig(),
-				MySQL:   DefaultMySQLConfig(),
-			}
-		}
-	})
-
-	return config, nil
+type RedisConfig struct {
+	Addr      string `yaml:"addr"`
+	Password  string `yaml:"password"`
+	DB        int    `yaml:"db"`
+	QueueName string `yaml:"queue_name"`
 }
 
-// GetConfig 获取全局配置实例
-func GetConfig() *AppConfig {
-	if config == nil {
-		// 如果配置未初始化，尝试从默认路径加载
-		_, err := LoadConfig("configs/config.yaml")
-		if err != nil {
-			// 使用默认配置
-			configOnce.Do(func() {
-				config = &AppConfig{
-					Redis:   DefaultRedisConfig(),
-					Trigger: DefaultTriggerConfig(),
-					Logger:  DefaultLoggerConfig(),
-					MySQL:   DefaultMySQLConfig(),
-				}
-			})
-		}
+type TriggerConfig struct {
+	APIBaseURL    string `yaml:"api_base_url"`
+	APIEndpoint   string `yaml:"api_endpoint"`
+	RedisAddr     string `yaml:"redis_addr"`
+	RedisPassword string `yaml:"redis_password"`
+	RedisDB       int    `yaml:"redis_db"`
+	RedisQueue    string `yaml:"redis_queue"`
+	InitQueueName string `yaml:"init_queue_name"`
+	APITimeout    int    `yaml:"api_timeout"`
+}
+
+type LoggerConfig struct {
+	Level      string `yaml:"level"`
+	FilePath   string `yaml:"file_path"`
+	MaxSize    int    `yaml:"max_size"`
+	MaxBackups int    `yaml:"max_backups"`
+	MaxAge     int    `yaml:"max_age"`
+	Compress   bool   `yaml:"compress"`
+	Console    bool   `yaml:"console"`
+}
+
+type MySQLConfig struct {
+	Host     string `yaml:"host"`
+	Port     int    `yaml:"port"`
+	Username string `yaml:"username"`
+	Password string `yaml:"password"`
+	Database string `yaml:"database"`
+	Charset  string `yaml:"charset"`
+}
+
+type VehicleTypeConfig struct {
+	DefaultQueue       string            `yaml:"default_queue"`
+	TypeAQueue         string            `yaml:"type_a_queue"`
+	TypeBQueue         string            `yaml:"type_b_queue"`
+	TypeCQueue         string            `yaml:"type_c_queue"`
+	ProductionCarQueue string            `yaml:"production_car_queue"`
+	TestDriveCarQueue  string            `yaml:"test_drive_car_queue"`
+	MediaCarQueue      string            `yaml:"media_car_queue"`
+	InternalCarQueue   string            `yaml:"internal_car_queue"`
+	VehicleTypeMap     map[string]string `yaml:"vehicle_type_map"`
+}
+
+// LoadConfig 加载YAML配置文件并返回配置结构体指针
+// LoadConfig 安全加载配置文件
+// 参数:
+// path string - 配置文件路径
+// 返回:
+// *Config - 配置对象指针
+// error - 加载错误信息
+func LoadConfig(path string) (*Config, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("读取配置文件失败: %w", err)
 	}
-	return config
-}
 
-// GetRedisClient 获取全局Redis客户端实例
-func GetRedisClient() *redis.Client {
-	redisClientOnce.Do(func() {
-		// 确保配置已加载
-		redisConfig := GetConfig().Redis
-
-		// 创建Redis客户端
-		redisClient = redis.NewClient(&redis.Options{
-			Addr:     redisConfig.Addr,
-			Password: redisConfig.Password,
-			DB:       redisConfig.DB,
-		})
-	})
-
-	return redisClient
-}
-
-// CloseRedisClient 关闭Redis客户端连接
-func CloseRedisClient() error {
-	if redisClient != nil {
-		return redisClient.Close()
+	var newCfg Config
+	if err := yaml.Unmarshal(data, &newCfg); err != nil {
+		return nil, fmt.Errorf("解析YAML配置失败: %w", err)
 	}
-	return nil
+	return &newCfg, nil
+}
+
+// LoadConfigFromFile 显式加载配置文件
+// 参数:
+// path string - 配置文件路径
+// 返回:
+// *Config - 配置对象指针
+// error - 加载错误信息
+func LoadConfigFromFile(path string) (*Config, error) {
+	cfg, err := LoadConfig(path)
+	if err != nil {
+		return nil, err
+	}
+	return cfg, nil
 }

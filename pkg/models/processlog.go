@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/zhangyuchen/AutoDataHub-monitor/pkg/common"
+	"github.com/zhangyuchen/AutoDataHub-monitor/configs"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -31,11 +31,11 @@ func (m *ProcessLogs) TableName() string {
 func CreateProcessLog(db *gorm.DB, log ProcessLogs) (*ProcessLogs, error) {
 	result := db.Table("process_logs").Create(&log)
 	if result.Error != nil {
-		common.Logger.Error("failed to create process log", zap.Error(result.Error))
+		configs.Client.Logger.Error("failed to create process log", zap.Error(result.Error))
 		return nil, fmt.Errorf("failed to create process log: %w", result.Error)
 	}
 	if result.RowsAffected == 0 {
-		common.Logger.Error("no rows affected")
+		configs.Client.Logger.Error("no rows affected")
 		return nil, errors.New("no rows affected")
 	}
 	return &log, nil
@@ -46,13 +46,13 @@ func UpdateProcessLog(db *gorm.DB, data map[string]interface{}) error {
 		Where("id = ?", data["id"]).
 		Updates(data)
 	if result.Error != nil {
-		common.Logger.Error("failed to update process log",
+		configs.Client.Logger.Error("failed to update process log",
 			zap.Any("data", data),
 			zap.Error(result.Error))
 		return fmt.Errorf("failed to update process log: %w", result.Error)
 	}
 	if result.RowsAffected == 0 {
-		common.Logger.Warn("no rows updated",
+		configs.Client.Logger.Warn("no rows updated",
 			zap.Any("data", data))
 		return errors.New("no rows updated")
 	}
@@ -64,11 +64,11 @@ func AddProcessLog(db *gorm.DB, logId int, queueName string) error {
 		Where("id = ?", logId).
 		Update("process_status", gorm.Expr("CONCAT(process_log, ?)", " -> "+queueName))
 	if result.Error != nil {
-		common.Logger.Error("failed to add process log", zap.Error(result.Error))
+		configs.Client.Logger.Error("failed to add process log", zap.Error(result.Error))
 		return fmt.Errorf("failed to add process log: %w", result.Error)
 	}
 	if result.RowsAffected == 0 {
-		common.Logger.Warn("no rows updated")
+		configs.Client.Logger.Warn("no rows updated")
 		return errors.New("no rows updated")
 	}
 	return nil
