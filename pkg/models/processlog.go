@@ -10,13 +10,12 @@ import (
 	"gorm.io/gorm"
 )
 
-// ProcessLog 表示处理日志的结构体
 type ProcessLogs struct {
-	ID               int       `gorm:"column:id;type:smallint(6);primary_key;AUTO_INCREMENT" json:"id"`
+	ID               int       `gorm:"column:id;type:int(11);primary_key;AUTO_INCREMENT" json:"id"`
 	UpdatedAt        time.Time `gorm:"column:updated_at;type:timestamp;default:CURRENT_TIMESTAMP" json:"updated_at"`
 	CreateAt         time.Time `gorm:"column:create_at;type:timestamp;default:CURRENT_TIMESTAMP" json:"create_at"`
 	Vin              string    `gorm:"column:vin;type:varchar(17);NOT NULL" json:"vin"`
-	TriggerTimestamp int64     `gorm:"column:trigger_timestamp;type:timestamp;NOT NULL" json:"trigger_timestamp"`
+	TriggerTimestamp time.Time `gorm:"column:trigger_timestamp;type:timestamp;NOT NULL" json:"trigger_timestamp"`
 	CarType          string    `gorm:"column:car_type;type:varchar(255);NOT NULL" json:"car_type"`
 	UseType          string    `gorm:"column:use_type;type:varchar(255);NOT NULL" json:"use_type"`
 	TriggerID        string    `gorm:"column:trigger_id;type:varchar(255);NOT NULL" json:"trigger_id"`
