@@ -21,3 +21,8 @@ func (m *CarUserInfo) TableName() string {
 	return "car_user_info"
 }
 
+
+func FindUseTypeOfVinAndTime(db *gorm.DB, vin string, dateTime string) (data CarUserInfo, err errors) {
+	err = db.Table("car_user_info").Where("vin = ? and CreateAt <= ?",vin,dateTime).Frist(&data).err
+	return
+}

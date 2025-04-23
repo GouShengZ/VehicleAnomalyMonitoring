@@ -9,14 +9,12 @@ redis:
 
 # 触发器配置
 trigger:
-  api_base_url: "http://localhost:8080"  # API基础URL
-  api_endpoint: "/api/triggers"          # API端点
-  redis_addr: "localhost:6379"           # Redis服务器地址
-  redis_password: ""                     # Redis密码
-  redis_db: 0                            # Redis数据库编号
-  redis_queue: "negative_triggers"       # Redis队列名称
-  init_queue_name: "init_triggers"         # 初始化队列名称
-  api_timeout: 30                        # 超时时间（秒）
+  api_base_url: "http://localhost:8080" # API基础URL
+  from_path: "/api/triggers"            # 元数据路径
+  from_path_method: "POST"              # 调用方法
+  trigger_id_list: [1,2,3,4,5,123,345,62,44,123]
+  download_path: "/api/download"        # 下载pack文件路径
+  download_path_method: "POST"          # 调用方法
 
 # 日志配置
 logger:

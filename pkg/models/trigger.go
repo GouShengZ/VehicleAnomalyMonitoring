@@ -7,7 +7,6 @@ import (
 
 	"github.com/zhangyuchen/AutoDataHub-monitor/configs"
 
-	// "github.com/zhangyuchen/AutoDataHub-monitor/pkg/models"
 	"go.uber.org/zap"
 )
 
@@ -18,8 +17,6 @@ type NegativeTriggerData struct {
 	CarType   string `json:"car_type"`   // 车辆类型
 	UsageType string `json:"usage_type"` // 使用类型
 	TriggerID string `json:"trigger_id"` // 触发器ID
-	Type      string `json:"type"`       // 触发器类型，例如"negative"
-	Status    string `json:"status"`     // 触发器状态，例如"pending"
 	LogId     int    `json:"log_id"`     // 日志ID
 }
 

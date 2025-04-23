@@ -23,14 +23,12 @@ type RedisConfig struct {
 }
 
 type TriggerConfig struct {
-	APIBaseURL    string `yaml:"api_base_url"`
-	APIEndpoint   string `yaml:"api_endpoint"`
-	RedisAddr     string `yaml:"redis_addr"`
-	RedisPassword string `yaml:"redis_password"`
-	RedisDB       int    `yaml:"redis_db"`
-	RedisQueue    string `yaml:"redis_queue"`
-	InitQueueName string `yaml:"init_queue_name"`
-	APITimeout    int    `yaml:"api_timeout"`
+	APIBaseURL         string `yaml:"api_base_url"`
+	FromPath           string `yaml:"from_path"`
+	FromPathMethod     string `yaml:"from_path_method"`
+	TriggerIdList     string `yaml:"trigger_id_list"`	
+	DownloadPath       string `yaml:"download_path"`
+	DownloadPathMethod string `yaml:"download_path_method"`
 }
 
 type LoggerConfig struct {

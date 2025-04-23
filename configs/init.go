@@ -11,12 +11,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// Clients 聚合所有客户端实例
-type Clients struct {
-	Redis  *redis.Client
-	MySQL  *gorm.DB
-	Logger *zap.Logger
-}
 
 var Client *Clients
 var Cfg *Config
@@ -35,6 +29,13 @@ func Init() {
 	if err != nil {
 		panic(err)
 	}
+}
+
+// Clients 聚合所有客户端实例
+type Clients struct {
+	Redis  *redis.Client
+	MySQL  *gorm.DB
+	Logger *zap.Logger
 }
 
 // InitRedis 初始化Redis连接
