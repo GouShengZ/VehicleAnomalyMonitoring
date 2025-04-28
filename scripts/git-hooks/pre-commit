@@ -1,0 +1,13 @@
+#!/bin/sh
+# 预提交钩子示例 - Go项目规范检查
+
+echo "▶ Running go fmt"
+go fmt ./...
+
+echo "▶ Running go vet"
+go vet ./...
+
+echo "▶ Running staticcheck"
+staticcheck ./...
+
+echo "✓ Pre-commit checks completed"

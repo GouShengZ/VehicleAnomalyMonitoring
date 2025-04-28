@@ -57,6 +57,8 @@ type VehicleTypeConfig struct {
 	TestDriveCarQueue  string `yaml:"test_drive_car_queue"`
 	MediaCarQueue      string `yaml:"media_car_queue"`
 	InternalCarQueue   string `yaml:"internal_car_queue"`
+	FusionCarQueue     string `yaml:"fusion_car_queue"`
+	WriteDbQueue       string `yaml:"write_db_queue"`
 }
 
 func (c *VehicleTypeConfig) ForEach(handler func(fieldName, value string)) {

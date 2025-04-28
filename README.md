@@ -1,204 +1,89 @@
-# AutoDataHub-Monitor
+# AutoDataHub-monitor 智能驾驶数据监控系统
 
-## 项目概述
+## 技术栈
 
-AutoDataHub-Monitor是一个专门为车辆数据监控设计的高性能实时监控系统。该系统能够从多个数据源（如Kafka、Redis等）收集车辆数据，通过可配置的处理流水线进行分析和转换，并根据预设规则触发警报。系统支持灵活的插件扩展，可以根据不同的业务需求进行定制化开发。
+| 组件       | 版本       | 用途                  |
+|------------|------------|----------------------|
+| Go         | 1.23.1     | 核心开发语言          |
+| go-redis   | v8.11.5    | Redis数据队列管理     |
+| GORM       | v1.25.12   | MySQL ORM框架         |
+| Zap        | v1.27.0    | 结构化日志记录        |
+| CAN协议解析| go.einride | v0.12.2              |
 
-## 系统架构
-
-系统由以下主要组件构成：
-
+## 数据处理流程
+```mermaid
+graph TD
+  A[原始CAN数据] --> B[协议解析]
+  B --> C{异常检测}
+  C -->|正常| D[写入MySQL]
+  C -->|异常| E[Redis队列]
+  E --> F[触发告警]
 ```
-+----------------+     +-------------+     +--------------+
-|   数据源模块    | --> |  处理流水线  | --> |   日志系统    |
-+----------------+     +-------------+     +--------------+
-        |                     |                  |
-        v                     v                  v
-+----------------+     +--------------+    +--------------+
-|   插件系统     |     |   告警模块   |    |  Redis存储   |
-+----------------+     +--------------+    +--------------+
-```
-
-### 核心模块
-
-1. **数据源模块**
-   - Kafka连接器：从Kafka主题订阅车辆数据
-   - Redis连接器：从Redis队列获取数据
-   - 触发器API：接收外部系统的数据推送
-
-2. **处理流水线**
-   - 车辆类型过滤器：根据车辆类型和使用类型进行数据分流
-   - 数据转换器：标准化数据格式
-   - 告警处理器：根据业务规则生成告警
-
-3. **插件系统**
-   - 插件注册表：管理和加载自定义插件
-   - 扩展点：支持数据处理、告警规则等扩展
-
-4. **存储系统**
-   - Redis队列：存储处理后的数据
-   - 日志存储：记录系统运行和数据处理日志
 
 ## 项目结构
-
 ```
-.
-├── configs/               # 配置文件目录
-├── internal/              # 内部包
-│   ├── datasource/       # 数据源实现
-│   │   ├── kafkaJavaFlink/  # Kafka数据源
-│   │   ├── trigger/      # 触发器数据源
-│   │   └── vehicle/      # 车辆数据处理
-│   ├── pipeline/         # 处理流水线
-│   │   ├── run/          # 流水线运行
-│   │   └── type_filter/  # 类型过滤器
-│   └── processor/        # 数据处理器
-│       ├── alert/        # 告警处理
-│       ├── filter/       # 数据过滤
-└── pkg/                   # 公共包
-    ├── models/           # 数据模型
-    └── utils/            # 工具函数
+├── cmd/                 # 入口模块
+│   ├── process/        # 数据处理入口
+│   └── task/           # 定时任务入口
+├── configs/            # 配置中心
+│   ├── *.yaml          # 各车型信号配置
+│   └── steering_angle.dbc  # CAN协议定义
+├── internal/
+│   ├── datasource/     # 数据源接入
+│   ├── pipeline/       # 处理流水线
+│   └── processor/      # 业务处理器
+├── pkg/
+│   ├── utils/          # CAN协议解析工具
+│   └── models/         # 数据模型定义
 ```
 
-### 目录说明
-
-- **cmd/**: 包含项目的主要入口点，monitor子目录是监控程序的启动入口
-- **configs/**: 存放所有配置相关的代码和配置文件
-- **internal/**: 项目内部包，包含核心业务逻辑实现
-  - datasource/: 实现各种数据源的连接和数据获取
-  - logger/: 处理系统日志和数据日志
-  - pipeline/: 实现数据处理流水线
-  - plugin/: 插件系统实现
-  - processor/: 数据处理器实现
-- **pkg/**: 可以被外部项目使用的公共包
-
-## 配置指南
-
-系统配置文件位于`configs/`目录下，支持YAML格式：
-
-### Redis配置
-
+## 配置示例
 ```yaml
+# config.yaml
 redis:
+  addr: "localhost:6379"
+  queue_name: "negative_triggers"
+
+mysql:
   host: "localhost"
-  port: 6379
-  db: 0
-  password: ""
-  pool_size: 10
-```
+  database: "autodatahub"
 
-### 车辆类型配置
-
-```yaml
 vehicle_type:
-  default_queue: "default_queue"
-  type_map:
-    "passenger_private": "passenger_queue"
-    "commercial_logistics": "logistics_queue"
-    "commercial_passenger": "bus_queue"
+  production_car_queue: "prod_triggers"
+  test_drive_car_queue: "test_triggers"
 ```
 
-### 触发器配置
-
-```yaml
-trigger:
-  api:
-    port: 8080
-    endpoint: "/api/trigger"
-  rules:
-    - type: "negative"
-      conditions:
-        - field: "speed"
-          operator: ">"
-          value: 120
-```
-
-## 使用指南
-
-### 环境要求
-
-- Go 1.23+
-- Redis 6.0+
-- Kafka 2.8+
-
-### 安装
-
+## 快速开始
 ```bash
-# 克隆项目
-git clone https://AutoDataHub-monitor.git
+# 加载配置
+make config 
 
-# 安装依赖
-go mod download
+# 启动数据处理
+make run-process
 
-# 编译
-go build -o bin/monitor cmd/monitor/main.go
+# 执行定时任务
+make run-task
 ```
 
-### 启动服务
+## 协作规范
 
+### 1. 分支管理
+- `main` 分支为受保护分支，仅允许通过MR合并
+- 功能开发使用 `feature/功能名称-日期` 格式分支
+- 热修复使用 `hotfix/问题描述-日期` 格式分支
+
+### 2. 提交规范
+- 遵循 Conventional Commits 格式：
+  `类型(作用域): 描述`
+  示例：`feat(can): 新增CAN信号解析功能`
+- 类型可选值：feat|fix|docs|style|refactor|test|chore
+
+### 3. 代码审查
+- 所有MR需要至少1个核心成员批准
+- CI流程必须全部通过（单元测试/静态检查）
+
+### 4. 开发准备
 ```bash
-# 使用默认配置启动
-./bin/monitor
-
-# 指定配置文件启动
-./bin/monitor --config=configs/custom.yaml
+# 安装git hooks
+ln -s ../../scripts/git-hooks/pre-commit .git/hooks/pre-commit
 ```
-
-### API使用示例
-
-```bash
-# 发送触发器数据
-curl -X POST http://localhost:8080/api/trigger \
-  -H "Content-Type: application/json" \
-  -d '{
-    "vin": "VIN12345",
-    "car_type": "passenger",
-    "usage_type": "private",
-    "trigger_id": "speed_alert",
-    "type": "negative",
-    "timestamp": 1623456789
-  }'
-```
-
-## 开发指南
-
-### 添加新的处理器
-
-1. 在`internal/processor`目录下创建新的处理器包
-2. 实现处理器接口
-3. 在处理器注册表中注册新处理器
-
-```go
-package myprocessor
-
-import (
-    "AutoDataHub-monitor/pkg/models"
-)
-
-type MyProcessor struct {
-    // 处理器配置
-}
-
-func (p *MyProcessor) Process(data *models.NegativeTriggerData) error {
-    // 实现数据处理逻辑
-    return nil
-}
-```
-
-### 添加新的数据源
-
-1. 在`internal/datasource`目录下创建新的数据源包
-2. 实现数据源接口
-3. 在数据源注册表中注册新数据源
-
-## 贡献指南
-
-1. Fork 项目
-2. 创建功能分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 提交Pull Request
-
-## 许可证
-
-本项目采用MIT许可证。详情请参阅LICENSE文件。

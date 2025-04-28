@@ -43,3 +43,6 @@ vehicle_type:
   test_drive_car_queue: "test_drive_car_triggers"
   media_car_queue: "media_car_triggers"
   internal_car_queue: "internal_car_triggers"
+
+  fusion_car_queue: "fusion_car_triggers"
+  write_db_queue: "write_db_triggers"

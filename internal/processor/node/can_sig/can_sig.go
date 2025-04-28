@@ -1,4 +1,4 @@
-package node
+package can_sig
 
 import (
 	"context"
@@ -32,9 +32,10 @@ func ProcessCanQueueData(queueName string) {
 	if isCrash != 0 {
 		logger.Info(crashInfo)
 		// 推入数据库队列
+		data.PushToRedisQueue(configs.Cfg.VehicleType.WriteDbQueue)
 	} else {
 		// 推入感知队列
+		data.PushToRedisQueue(configs.Cfg.VehicleType.FusionCarQueue)
 	}
-
 	return
 }

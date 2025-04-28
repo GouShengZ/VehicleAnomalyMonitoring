@@ -1,0 +1,28 @@
+# IDE配置
+.vscode/
+.idea/
+
+# 依赖目录
+vendor/
+node_modules/
+
+# 编译输出
+bin/
+dist/
+*.exe
+*.dll
+*.so
+
+# 日志文件
+*.log
+*.tmp
+
+# 环境文件
+.env
+.env.local
+
+# 测试覆盖数据
+coverage.out
+
+# Go工作区
+/go.sum
