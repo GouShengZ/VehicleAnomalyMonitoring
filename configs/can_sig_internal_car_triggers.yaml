@@ -10,6 +10,3 @@ signals:
   - name: CollisionSignal # 碰撞信号
     signal_name: crash
     threshold: 1 # 示例阈值，1 表示碰撞发生
-  - name: SteeringWheelAngleChange # 方向盘转角变化值
-    signal_name: SteeringWheelAngle
-    threshold: 15 # 示例阈值，单位 度/秒

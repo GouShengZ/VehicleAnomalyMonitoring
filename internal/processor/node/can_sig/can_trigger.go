@@ -11,7 +11,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-var logger = configs.Client.Logger
+// var logger = configs.Client.Logger
 
 type TriggerFileData struct {
 	Code    string `json:"code"`
@@ -48,19 +48,18 @@ type AngleDataPoint struct {
 }
 
 type TriggeFileFromClient struct {
-	url                  string
-	method               string
-	config               *CanSignalConfig // CAN 信号配置
-	steeringAngleHistory []AngleDataPoint // 存储最近的方向盘转角数据
-	signalList           []string         // 存储信号名称列表
+	url        string
+	method     string
+	config     *CanSignalConfig // CAN 信号配置
+	signalList []string         // 存储信号名称列表
 }
 
 // NewTriggerFromClient 创建一个新的 TriggeFileFromClient 实例
-func NewTriggeFileFromClient() *TriggeFileFromClient {
+func NewTriggeFileFromClient(dbcPath string) *TriggeFileFromClient {
 	client := &TriggeFileFromClient{}
 	client.url = configs.Cfg.Trigger.APIBaseURL + configs.Cfg.Trigger.DownloadPath // Use correct config field names
 	client.method = configs.Cfg.Trigger.DownloadPathMethod                         // Use correct config field names
-	cfg, err := loadCanSignalConfig("./configs/can_sig.yaml")
+	cfg, err := loadCanSignalConfig(dbcPath)
 	if err != nil {
 		return nil
 	}
@@ -70,7 +69,6 @@ func NewTriggeFileFromClient() *TriggeFileFromClient {
 		signalList = append(signalList, signal.SignalName)
 	}
 	client.signalList = signalList
-	client.steeringAngleHistory = make([]AngleDataPoint, 0) // 初始化为空切片
 	return client
 }
 
@@ -118,5 +116,44 @@ func (t *TriggeFileFromClient) GetCanFile(path, vin string, ts int64) (outPath s
 		return
 	}
 	outPath = path
+	return
+}
+func (t *TriggeFileFromClient) GetSignalListFromFile(path string) (sigMap map[int64]map[string]float64, tsList []int64, err error) {
+	defer os.Remove(path)
+	sigMap, tsList, err = utils.ParseCANLogWithDBC(path, "./configs/steering_angle.dbc", t.signalList)
+	return
+}
+
+func (t *TriggeFileFromClient) IsSignalsReachesThreshold(sigMap map[int64]map[string]float64, tsList []int64) (isExceeded int, logStr string, err error) {
+	for _, ts := range tsList {
+		signals := sigMap[ts]
+		for index, signal := range t.config.Signals {
+			val := signals[signal.SignalName]
+			if val > signal.Threshold {
+				isExceeded = index + 1
+				logStr = fmt.Sprintf("信号 %s 超过阈值 %f", signal.Name, signal.Threshold)
+				return
+			}
+		}
+	}
+	return
+}
+
+func (t *TriggeFileFromClient) IsCrash(vin string, ts int64) (isCrash int, crashInfo string, err error) {
+	outPath, err := t.GetCanFile(fmt.Sprintf("./logs/{vin}_{ts}.can"), vin, ts)
+	if err != nil {
+		logger.Error(fmt.Sprintf("获取can文件失败: %v", err))
+		return
+	}
+	sigMap, tsList, err := t.GetSignalListFromFile(outPath)
+	if err != nil {
+		logger.Error(fmt.Sprintf("解析can文件失败: %v", err))
+		return
+	}
+	isCrash, crashInfo, err = t.IsSignalsReachesThreshold(sigMap, tsList)
+	if err != nil {
+		logger.Error(fmt.Sprintf("判断信号是否超过阈值失败: %v", err))
+		return
+	}
 	return
 }

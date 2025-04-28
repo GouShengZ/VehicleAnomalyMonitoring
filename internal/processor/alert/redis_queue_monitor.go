@@ -30,15 +30,25 @@ func checkRedisQueueLength(ctx context.Context, queueName string, threshold int)
 }
 
 // CheckAllRedisQueueLength 检查所有配置的 Redis 队列长度
-// 使用 defer recover 来捕获可能的 panic
-func CheckAllRedisQueueLength(ctx context.Context) {
+// 返回可能遇到的错误信息
+func CheckAllRedisQueueLength(ctx context.Context) error {
 	defer func() {
 		if err := recover(); err != nil {
 			logger.Sugar().Errorf("捕获到 panic：%v\n", err)
 		}
 	}()
 
+	var errs []error
 	configs.Cfg.VehicleType.ForEach(func(fieldName, value string) {
+		if _, err := configs.Client.Redis.Ping(ctx).Result(); err != nil {
+			errs = append(errs, fmt.Errorf("Redis连接失败: %w", err))
+			return
+		}
 		checkRedisQueueLength(ctx, value, 1000)
 	})
+
+	if len(errs) > 0 {
+		return fmt.Errorf("遇到%d个错误: %+v", len(errs), errs)
+	}
+	return nil
 }
