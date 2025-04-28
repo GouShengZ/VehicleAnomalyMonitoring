@@ -52,14 +52,23 @@ type MySQLConfig struct {
 
 type VehicleTypeConfig struct {
 	DefaultQueue       string            `yaml:"default_queue"`
-	TypeAQueue         string            `yaml:"type_a_queue"`
-	TypeBQueue         string            `yaml:"type_b_queue"`
-	TypeCQueue         string            `yaml:"type_c_queue"`
 	ProductionCarQueue string            `yaml:"production_car_queue"`
 	TestDriveCarQueue  string            `yaml:"test_drive_car_queue"`
 	MediaCarQueue      string            `yaml:"media_car_queue"`
 	InternalCarQueue   string            `yaml:"internal_car_queue"`
-	VehicleTypeMap     map[string]string `yaml:"vehicle_type_map"`
+}
+
+func (c *VehicleTypeConfig) ForEach(handler func(fieldName, value string)) {
+    // 使用反射遍历并执行处理函数
+    val := reflect.ValueOf(*c)
+    typ := val.Type()
+
+    for i := 0; i < val.NumField(); i++ {
+        field := val.Field(i)
+        fieldName := typ.Field(i).Tag.Get("yaml")  // 获取yaml标签名
+        fieldValue := field.String()
+        handler(fieldName, fieldValue)
+    }
 }
 
 // LoadConfig 加载YAML配置文件并返回配置结构体指针

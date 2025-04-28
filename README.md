@@ -43,34 +43,19 @@ AutoDataHub-Monitor是一个专门为车辆数据监控设计的高性能实时�
 
 ```
 .
-├── cmd/                    # 主程序入口
-│   └── monitor/           # 监控程序主入口
 ├── configs/               # 配置文件目录
-│   ├── config.go         # 配置加载和管理
-│   ├── config.yaml       # 主配置文件
-│   ├── redis.go          # Redis配置
-│   ├── trigger.go        # 触发器配置
-│   └── vehicle_type.go   # 车辆类型配置
 ├── internal/              # 内部包
 │   ├── datasource/       # 数据源实现
 │   │   ├── kafkaJavaFlink/  # Kafka数据源
-│   │   ├── redis/        # Redis数据源
 │   │   ├── trigger/      # 触发器数据源
 │   │   └── vehicle/      # 车辆数据处理
-│   ├── logger/           # 日志处理
-│   │   ├── datalog/      # 数据日志
-│   │   └── processlog/   # 处理日志
 │   ├── pipeline/         # 处理流水线
 │   │   ├── run/          # 流水线运行
 │   │   └── type_filter/  # 类型过滤器
-│   ├── plugin/           # 插件系统
-│   │   └── registry/     # 插件注册
 │   └── processor/        # 数据处理器
 │       ├── alert/        # 告警处理
 │       ├── filter/       # 数据过滤
-│       └── transform/    # 数据转换
 └── pkg/                   # 公共包
-    ├── common/           # 通用工具
     ├── models/           # 数据模型
     └── utils/            # 工具函数
 ```
@@ -140,7 +125,7 @@ trigger:
 
 ```bash
 # 克隆项目
-git clone https://github.com/zhangyuchen/AutoDataHub-monitor.git
+git clone https://AutoDataHub-monitor.git
 
 # 安装依赖
 go mod download
@@ -187,7 +172,7 @@ curl -X POST http://localhost:8080/api/trigger \
 package myprocessor
 
 import (
-    "github.com/zhangyuchen/AutoDataHub-monitor/pkg/models"
+    "AutoDataHub-monitor/pkg/models"
 )
 
 type MyProcessor struct {

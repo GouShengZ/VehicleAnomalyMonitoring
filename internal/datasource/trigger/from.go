@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/zhangyuchen/AutoDataHub-monitor/configs"
-	"github.com/zhangyuchen/AutoDataHub-monitor/pkg/utils"
-	"github.com/zhangyuchen/AutoDataHub-monitor/pkg/models"
+	"AutoDataHub-monitor/configs"
+	"AutoDataHub-monitor/pkg/utils"
+	"AutoDataHub-monitor/pkg/models"
 )
 
 type TriggerApiData struct {
@@ -45,6 +45,11 @@ func NewTriggerFromClient() (*TriggerFromClient) {
 
 // GetTriggerDatasToRedisQueue 从API获取触发数据并存入Redis队列
 func (t *TriggerFromClient) GetTriggerDatasToRedisQueue(useType string) error {
+    defer func() {
+        if err := recover(); err != nil {
+            configs.Client.Logger.Errorf("捕获到 panic：%v\n", err)
+        }
+    }()
     // 调用API 解析API
     var response TriggerApiData
     requestData := struct {

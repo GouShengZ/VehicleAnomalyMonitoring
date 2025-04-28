@@ -5,10 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/zhangyuchen/AutoDataHub-monitor/configs"
+	"AutoDataHub-monitor/configs"
 
 	"go.uber.org/zap"
 )
+
+// 获取Redis客户端实例
+var redisClient = configs.Client.Redis // Use initialized Redis client instance
 
 // NegativeTriggerData 表示负面触发器数据
 type NegativeTriggerData struct {
@@ -19,6 +22,22 @@ type NegativeTriggerData struct {
 	TriggerID string `json:"trigger_id"` // 触发器ID
 	LogId     int    `json:"log_id"`     // 日志ID
 }
+
+func PopToRedisQueue(queueName string) (data NegativeTriggerData, err error) {
+	val, err := redisClient.LPop(ctx, queueName).Result()
+    if err != nil {
+        if err == redis.Nil {
+            return nil, nil // 队列为空
+        }
+        return nil, fmt.Errorf("从队列获取数据失败: %v", err)
+    }
+    // 反序列化数据
+    if err := json.Unmarshal([]byte(val), &data); err != nil {
+        return nil, fmt.Errorf("反序列化数据失败: %v", err)
+    }
+	return
+}
+
 
 // PushToRedisQueue 将触发器数据推送到Redis队列
 func (d *NegativeTriggerData) PushToRedisQueue(queueName string) error {
@@ -42,8 +61,6 @@ func (d *NegativeTriggerData) PushToRedisQueue(queueName string) error {
 
 	ctx := context.Background()
 
-	// 获取Redis客户端实例
-	redisClient := configs.Client.Redis // Use initialized Redis client instance
 
 	// 将数据序列化为JSON
 	jsonData, err := json.Marshal(d)

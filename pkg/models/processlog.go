@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/zhangyuchen/AutoDataHub-monitor/configs"
+	"AutoDataHub-monitor/configs"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )

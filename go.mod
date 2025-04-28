@@ -1,4 +1,4 @@
-module github.com/zhangyuchen/AutoDataHub-monitor
+module AutoDataHub-monitor
 
 go 1.23
 

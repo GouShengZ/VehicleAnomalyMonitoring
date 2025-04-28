@@ -38,26 +38,8 @@ mysql:
 # 车辆类型配置
 vehicle_type:
   default_queue: "default_triggers"
-  # Vehicle type queues
-  type_a_queue: "type_a_triggers"
-  type_b_queue: "type_b_triggers"
-  type_c_queue: "type_c_triggers"
   # Usage type queues
   production_car_queue: "production_car_triggers"
   test_drive_car_queue: "test_drive_car_triggers"
   media_car_queue: "media_car_triggers"
   internal_car_queue: "internal_car_triggers"
-  # Mapping rules
-  vehicle_type_map:
-    "A_量产车": "type_a_production_triggers"
-    "A_试驾车": "type_a_test_drive_triggers"
-    "A_媒体车": "type_a_media_triggers"
-    "A_内部车": "type_a_internal_triggers"
-    "B_量产车": "type_b_production_triggers"
-    "B_试驾车": "type_b_test_drive_triggers"
-    "B_媒体车": "type_b_media_triggers"
-    "B_内部车": "type_b_internal_triggers"
-    "C_量产车": "type_c_production_triggers"
-    "C_试驾车": "type_c_test_drive_triggers"
-    "C_媒体车": "type_c_media_triggers"
-    "C_内部车": "type_c_internal_triggers"

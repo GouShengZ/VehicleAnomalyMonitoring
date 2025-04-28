@@ -15,6 +15,16 @@ type Task struct {
     LastRunTime time.Time      // 上次执行时间
 }
 
+// NewTaskManager 创建一个新的任务管理器
+func NewTaskManager() *TaskManager {
+    ctx, cancel := context.WithCancel(context.Background())
+    return &TaskManager{
+        tasks:  make(map[string]*Task),
+        ctx:    ctx,
+        cancel: cancel,
+    }
+}
+
 // AddTask 添加一个新任务到管理器，增加了时间间隔参数
 func (tm *TaskManager) AddTask(id string, name string, interval time.Duration, processFunc func(context.Context) error) error {
     tm.taskLock.Lock()
@@ -59,6 +69,34 @@ func (tm *TaskManager) AddTaskWithDelay(id string, name string, interval time.Du
 
     tm.tasks[id] = task
     return nil
+}
+
+
+// StartAllTasks 启动所有已注册的任务
+// 返回已成功启动的任务数量和可能发生的错误
+func (tm *TaskManager) StartAllTasks() (int, error) {
+    tm.taskLock.RLock()
+    defer tm.taskLock.RUnlock()
+
+    successCount := 0
+    var lastError error
+
+    // 遍历所有任务并尝试启动
+    for id := range tm.tasks {
+        if err := tm.StartTask(id); err != nil {
+            lastError = fmt.Errorf("启动任务 %s 失败: %v", id, err)
+            log.Printf("启动任务 %s 失败: %v", id, err)
+            continue
+        }
+        successCount++
+    }
+
+    // 如果有任务启动失败，返回最后一个错误
+    if successCount < len(tm.tasks) {
+        return successCount, lastError
+    }
+
+    return successCount, nil
 }
 
 // StartTask 启动指定的任务
