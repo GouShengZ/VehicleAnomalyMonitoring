@@ -3,6 +3,7 @@ package configs
 import (
 	"fmt"
 	"os"
+	"reflect"
 
 	"gopkg.in/yaml.v3"
 )
@@ -26,7 +27,7 @@ type TriggerConfig struct {
 	APIBaseURL         string `yaml:"api_base_url"`
 	FromPath           string `yaml:"from_path"`
 	FromPathMethod     string `yaml:"from_path_method"`
-	TriggerIdList     string `yaml:"trigger_id_list"`	
+	TriggerIdList      []int  `yaml:"trigger_id_list"`
 	DownloadPath       string `yaml:"download_path"`
 	DownloadPathMethod string `yaml:"download_path_method"`
 }
@@ -51,24 +52,24 @@ type MySQLConfig struct {
 }
 
 type VehicleTypeConfig struct {
-	DefaultQueue       string            `yaml:"default_queue"`
-	ProductionCarQueue string            `yaml:"production_car_queue"`
-	TestDriveCarQueue  string            `yaml:"test_drive_car_queue"`
-	MediaCarQueue      string            `yaml:"media_car_queue"`
-	InternalCarQueue   string            `yaml:"internal_car_queue"`
+	DefaultQueue       string `yaml:"default_queue"`
+	ProductionCarQueue string `yaml:"production_car_queue"`
+	TestDriveCarQueue  string `yaml:"test_drive_car_queue"`
+	MediaCarQueue      string `yaml:"media_car_queue"`
+	InternalCarQueue   string `yaml:"internal_car_queue"`
 }
 
 func (c *VehicleTypeConfig) ForEach(handler func(fieldName, value string)) {
-    // 使用反射遍历并执行处理函数
-    val := reflect.ValueOf(*c)
-    typ := val.Type()
+	// 使用反射遍历并执行处理函数
+	val := reflect.ValueOf(*c)
+	typ := val.Type()
 
-    for i := 0; i < val.NumField(); i++ {
-        field := val.Field(i)
-        fieldName := typ.Field(i).Tag.Get("yaml")  // 获取yaml标签名
-        fieldValue := field.String()
-        handler(fieldName, fieldValue)
-    }
+	for i := 0; i < val.NumField(); i++ {
+		field := val.Field(i)
+		fieldName := typ.Field(i).Tag.Get("yaml") // 获取yaml标签名
+		fieldValue := field.String()
+		handler(fieldName, fieldValue)
+	}
 }
 
 // LoadConfig 加载YAML配置文件并返回配置结构体指针

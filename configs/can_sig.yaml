@@ -1,0 +1,15 @@
+# can信号配置文件
+# 每个信号包含名称、阈值等信息
+signals:
+  - name: LongitudinalAcceleration # 纵向加速度
+    signal_name: LongitudinalAcceleration
+    threshold: 1.5 # 示例阈值，单位 g
+  - name: LateralAcceleration # 横向加速度
+    signal_name: LateralAcceleration
+    threshold: 0.8 # 示例阈值，单位 g
+  - name: CollisionSignal # 碰撞信号
+    signal_name: crash
+    threshold: 1 # 示例阈值，1 表示碰撞发生
+  - name: SteeringWheelAngleChange # 方向盘转角变化值
+    signal_name: SteeringWheelAngle
+    threshold: 15 # 示例阈值，单位 度/秒

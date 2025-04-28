@@ -3,6 +3,8 @@ package models
 
 import (
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type CarUserInfo struct {
@@ -22,7 +24,9 @@ func (m *CarUserInfo) TableName() string {
 }
 
 
-func FindUseTypeOfVinAndTime(db *gorm.DB, vin string, dateTime string) (data CarUserInfo, err errors) {
-	err = db.Table("car_user_info").Where("vin = ? and CreateAt <= ?",vin,dateTime).Frist(&data).err
+func FindUseTypeOfVinAndTime(db *gorm.DB, vin string, dateTime string) (data CarUserInfo, err error) {
+	err = db.Table("car_user_info").
+	Where("vin = ? and CreateAt <= ?",vin,dateTime).
+	First(&data).Error
 	return
 }

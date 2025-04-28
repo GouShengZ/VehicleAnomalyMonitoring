@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 )
 
 // CallAPI 向指定的 URL 发送 HTTP 请求，并处理响应。
@@ -78,10 +79,32 @@ func CallAPI(urlString string, method string, params map[string]string, body []b
 			return fmt.Errorf("error unmarshaling response: %w, body: %s", err, string(responseBody))
 		}
 	} else if result == nil && len(responseBody) > 0 {
-        // 如果调用者不关心结果 (result is nil)，但有响应体，可能需要记录或警告
-        // fmt.Printf("Warning: Received response body but no result variable provided to unmarshal into.\n")
-    }
-
+		// 如果调用者不关心结果 (result is nil)，但有响应体，可能需要记录或警告
+		// fmt.Printf("Warning: Received response body but no result variable provided to unmarshal into.\n")
+	}
 
 	return nil // 成功
+}
+
+// DownloadFile 从指定URL下载文件并保存到本地
+// url: 下载文件的URL
+// filepath: 保存文件的本地路径
+func DownloadFile(url string, filepath string) error {
+	// 发送GET请求
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	// 创建文件
+	out, err := os.Create(filepath)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	// 将响应内容写入文件
+	_, err = io.Copy(out, resp.Body)
+	return err
 }

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"AutoDataHub-monitor/configs"
+
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -15,7 +16,7 @@ type ProcessLogs struct {
 	UpdatedAt        time.Time `gorm:"column:updated_at;type:timestamp;default:CURRENT_TIMESTAMP" json:"updated_at"`
 	CreateAt         time.Time `gorm:"column:create_at;type:timestamp;default:CURRENT_TIMESTAMP" json:"create_at"`
 	Vin              string    `gorm:"column:vin;type:varchar(17);NOT NULL" json:"vin"`
-	TriggerTimestamp time.Time `gorm:"column:trigger_timestamp;type:timestamp;NOT NULL" json:"trigger_timestamp"`
+	TriggerTimestamp int64     `gorm:"column:trigger_timestamp;type:timestamp;NOT NULL" json:"trigger_timestamp"`
 	CarType          string    `gorm:"column:car_type;type:varchar(255);NOT NULL" json:"car_type"`
 	UseType          string    `gorm:"column:use_type;type:varchar(255);NOT NULL" json:"use_type"`
 	TriggerID        string    `gorm:"column:trigger_id;type:varchar(255);NOT NULL" json:"trigger_id"`
