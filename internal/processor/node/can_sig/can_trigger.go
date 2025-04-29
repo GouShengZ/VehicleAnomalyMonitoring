@@ -125,14 +125,15 @@ func (t *TriggeFileFromClient) GetSignalListFromFile(path string) (sigMap map[in
 }
 
 func (t *TriggeFileFromClient) IsSignalsReachesThreshold(sigMap map[int64]map[string]float64, tsList []int64) (isExceeded int, logStr string, err error) {
+Loop:
 	for _, ts := range tsList {
 		signals := sigMap[ts]
 		for index, signal := range t.config.Signals {
 			val := signals[signal.SignalName]
 			if val > signal.Threshold {
 				isExceeded = index + 1
-				logStr = fmt.Sprintf("信号 %s 超过阈值 %f", signal.Name, signal.Threshold)
-				return
+				logStr += fmt.Sprintf("信号 %s 超过阈值 %f,", signal.Name, signal.Threshold)
+				break Loop
 			}
 		}
 	}

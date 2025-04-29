@@ -11,17 +11,28 @@ import (
 	"go.uber.org/zap"
 )
 
+// CrashInfoMap 定义了不同碰撞状态的描述信息
+var CrashInfoMap = map[int]string{
+	0: "未发生碰撞",
+	1: "横行加速度超限",
+	2: "纵向加速度超限",
+	3: "气囊弹出",
+	4: "方向盘转角超限",
+}
+
 // 获取Redis客户端实例
 var redisClient = configs.Client.Redis // Use initialized Redis client instance
 
 // NegativeTriggerData 表示负面触发器数据
 type NegativeTriggerData struct {
-	Vin       string `json:"vin"`        // 车辆识别号
-	Timestamp int64  `json:"timestamp"`  // 触发时间戳
-	CarType   string `json:"car_type"`   // 车辆类型
-	UsageType string `json:"usage_type"` // 使用类型
-	TriggerID string `json:"trigger_id"` // 触发器ID
-	LogId     int    `json:"log_id"`     // 日志ID
+	Vin          string `json:"vin"`           // 车辆识别号
+	Timestamp    int64  `json:"timestamp"`     // 触发时间戳
+	CarType      string `json:"car_type"`      // 车辆类型
+	UsageType    string `json:"usage_type"`    // 使用类型
+	TriggerID    string `json:"trigger_id"`    // 触发器ID
+	LogId        int    `json:"log_id"`        // 日志ID
+	ThresholdLog string `json:"threshold_log"` // 阈值日志
+	IsCrash      int    `json:"is_crash"`      // 是否发生碰撞
 }
 
 // PopToRedisQueue 从指定的Redis队列中弹出一个负面触发器数据。
@@ -40,6 +51,35 @@ func PopToRedisQueue(ctx context.Context, queueName string) (*NegativeTriggerDat
 	var data NegativeTriggerData
 	if err := json.Unmarshal([]byte(val), &data); err != nil {
 		return nil, fmt.Errorf("反序列化数据失败: %v", err)
+	}
+	if data.LogId != 0 {
+		updeteData := map[string]interface{}{
+			"id":                data.LogId,
+			"process_status":    queueName + "_start",
+			"process_queue_log": queueName,
+		}
+		err = UpdateProcessLog(configs.Client.MySQL, updeteData)
+		if err != nil {
+			configs.Client.Logger.Error("更新处理日志状态失败", zap.Error(err))
+			return nil, fmt.Errorf("更新处理日志状态失败: %w", err)
+		}
+	} else {
+		insertData := ProcessLogs{
+			Vin:              data.Vin,
+			TriggerTimestamp: data.Timestamp,
+			CarType:          data.CarType,
+			UseType:          data.UsageType,
+			TriggerID:        data.TriggerID,
+			ProcessStatus:    queueName + "_start",
+			ProcessLog:       queueName,
+		}
+		var res *ProcessLogs
+		res, err = CreateProcessLog(configs.Client.MySQL, insertData)
+		if err != nil {
+			configs.Client.Logger.Error("创建处理日志失败", zap.Error(err))
+			return nil, fmt.Errorf("创建处理日志失败: %w", err)
+		}
+		data.LogId = res.ID
 	}
 	return &data, nil
 }

@@ -29,8 +29,8 @@ func ProcessCanQueueData(queueName string) {
 		logger.Error(err.Error())
 		return
 	}
+	data.ThresholdLog = data.ThresholdLog + ";" + crashInfo
 	if isCrash != 0 {
-		logger.Info(crashInfo)
 		// 推入数据库队列
 		data.PushToRedisQueue(configs.Cfg.VehicleType.WriteDbQueue)
 	} else {

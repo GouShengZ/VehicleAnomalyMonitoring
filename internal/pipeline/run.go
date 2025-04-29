@@ -4,6 +4,7 @@ import (
 	"AutoDataHub-monitor/configs"
 	"AutoDataHub-monitor/internal/processor/node"
 	"AutoDataHub-monitor/internal/processor/node/can_sig"
+	"context"
 	"sync"
 )
 
@@ -68,6 +69,18 @@ func Run() {
 	// 处理感知车辆队列 TODO
 
 	// 处理写数据库队列 TODO
-
+	wg.Add(1)
+	wdbNode, err := node.NewWriteDBNode()
+	if err != nil {
+		logger.Sugar().Errorf("create write db node failed", err)
+		return
+	}
+	go func() {
+		defer wg.Done()
+		logger.Info("write db queue run")
+		for i := 0; i < 2; i++ {
+			go wdbNode.StartConsumer(context.Background())
+		}
+	}()
 	wg.Wait()
 }
