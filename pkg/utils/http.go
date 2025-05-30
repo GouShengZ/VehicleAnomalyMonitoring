@@ -8,7 +8,27 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"time"
 )
+
+// HTTPClient 增强的HTTP客户端
+type HTTPClient struct {
+	client  *http.Client
+	timeout time.Duration
+}
+
+// NewHTTPClient 创建新的HTTP客户端
+func NewHTTPClient(timeout time.Duration) *HTTPClient {
+	return &HTTPClient{
+		client: &http.Client{
+			Timeout: timeout,
+		},
+		timeout: timeout,
+	}
+}
+
+// DefaultHTTPClient 默认HTTP客户端
+var DefaultHTTPClient = NewHTTPClient(30 * time.Second)
 
 // CallAPI 向指定的 URL 发送 HTTP 请求，并处理响应。
 // urlString: 目标 API 的 URL。

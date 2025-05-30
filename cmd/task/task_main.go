@@ -16,6 +16,9 @@ import (
 var logger = configs.Client.Logger
 
 func main() {
+	// 初始化配置和客户端
+	configs.Init()
+
 	taskManager := utils.NewTaskManager()
 
 	triggerFromClient := trigger.NewTriggerFromClient()

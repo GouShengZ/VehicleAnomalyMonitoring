@@ -61,10 +61,11 @@ func NewTriggeFileFromClient(dbcPath string) *TriggeFileFromClient {
 	client.method = configs.Cfg.Trigger.DownloadPathMethod                         // Use correct config field names
 	cfg, err := loadCanSignalConfig(dbcPath)
 	if err != nil {
+		logger.Sugar().Errorf("加载CAN信号配置失败: %v", err)
 		return nil
 	}
 	client.config = cfg
-	signalList := make([]string, 0)
+	signalList := make([]string, 0, len(cfg.Signals))
 	for _, signal := range cfg.Signals {
 		signalList = append(signalList, signal.SignalName)
 	}
@@ -141,7 +142,7 @@ Loop:
 }
 
 func (t *TriggeFileFromClient) IsCrash(vin string, ts int64) (isCrash int, crashInfo string, err error) {
-	outPath, err := t.GetCanFile(fmt.Sprintf("./logs/{vin}_{ts}.can"), vin, ts)
+	outPath, err := t.GetCanFile(fmt.Sprintf("./logs/%s_%d.can", vin, ts), vin, ts)
 	if err != nil {
 		logger.Error(fmt.Sprintf("获取can文件失败: %v", err))
 		return
